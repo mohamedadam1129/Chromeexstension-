@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    /* Modern Reset */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { 
+      width: 380px; 
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+      background-color: #f7f9f9; 
+      color: #0f1419;
+    }
+
+    /* Sticky Header */
+    .header {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      padding: 16px 20px;
+      border-bottom: 1px solid #eff3f4;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      font-size: 18px;
+      letter-spacing: -0.5px;
+    }
+
+    .pro-badge {
+      background: linear-gradient(135deg, #1d9bf0 0%, #0d8bd9 100%);
+      color: white;
+      font-size: 10px;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .counter-box {
+      text-align: right;
+    }
+    
+    .count-number {
+      font-size: 18px;
+      font-weight: 800;
+      color: #1d9bf0;
+    }
+    
+    .count-label {
+      font-size: 10px;
+      color: #536471;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    /* Main Content Area */
+    #results-area {
+      padding: 15px;
+      min-height: 300px;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    /* Empty State (Start Screen) */
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+      text-align: center;
+      color: #536471;
+    }
+
+    .empty-icon-circle {
+      width: 60px;
+      height: 60px;
+      background: #e1f5fe;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 15px;
+      color: #1d9bf0;
+      font-size: 24px;
+    }
+
+    .empty-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #0f1419;
+      margin-bottom: 6px;
+    }
+
+    .empty-desc {
+      font-size: 13px;
+      line-height: 1.5;
+      max-width: 240px;
+      margin-bottom: 20px;
+    }
+
+    .warning-card {
+      background: #fff8e1;
+      border: 1px solid #ffe082;
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 12px;
+      color: #8d6e63;
+      text-align: left;
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    /* Tweet Card Styling */
+    .tweet-card {
+      background: white;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 12px;
+      border: 1px solid #eff3f4;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      transition: transform 0.2s;
+    }
+    .tweet-card:hover {
+      transform: translateY(-2px);
+      border-color: #cfd9de;
+    }
+    
+    .tweet-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-size: 13px;
+    }
+    
+    .t-user { font-weight: 700; color: #0f1419; }
+    .t-handle { color: #536471; margin-left: 4px; font-weight: 400; }
+    .t-date { color: #536471; font-size: 11px; }
+    .t-text { font-size: 14px; line-height: 1.4; color: #333; }
+
+    /* ========================================= */
+    /* NEW FOOTER STYLES (GRID LAYOUT)           */
+    /* ========================================= */
+    .footer {
+      position: sticky;
+      bottom: 0;
+      background: white;
+      border-top: 1px solid #eff3f4;
+      padding: 15px;
+      /* Grid System */
+      display: grid;
+      grid-template-columns: 1fr 1fr; /* Two equal columns */
+      gap: 10px;
+      box-shadow: 0 -4px 12px rgba(0,0,0,0.03);
+    }
+
+    /* General Button Style */
+    .footer button {
+      border: none;
+      padding: 12px;
+      border-radius: 24px;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+      width: 100%; /* Fill the grid cell */
+    }
+
+    /* 1. START SCAN (Full Width) */
+    #scanBtn {
+      background: #0f1419;
+      color: white;
+      grid-column: span 2; /* Stretch across both columns */
+    }
+    #scanBtn:hover { background: #272c30; transform: translateY(-1px); }
+    #scanBtn:disabled { background: #cfd9de; cursor: wait; }
+
+    /* 2. RESET (Left Side - Grey Border) */
+    #resetBtn {
+      background: #fff;
+      color: #536471;
+      border: 1px solid #cfd9de; /* Make it visible! */
+      display: none; /* Hidden until scan finishes */
+    }
+    #resetBtn:hover { background: #f7f9f9; }
+
+    /* 3. CSV DOWNLOAD (Right Side - Green) */
+    #downloadBtn {
+      background: #00ba7c;
+      color: white;
+      display: none; /* Hidden until scan finishes */
+    }
+    #downloadBtn:hover { background: #00a46d; }
+
+    /* 4. NOTEBOOKLM (Bottom - Full Width - Blue Gradient) */
+    #btnNotebookLM {
+      grid-column: span 2; /* Stretch across both columns */
+      background: linear-gradient(90deg, #4285F4, #8AB4F8);
+      color: white;
+      margin-top: 5px; /* Separate from buttons above */
+      display: none; /* Hidden until scan finishes */
+    }
+    #btnNotebookLM:hover { opacity: 0.9; transform: translateY(-1px); }
+
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <div class="brand">
+      <img src="icon.png" width="24" height="24"> 
+      <span>TwiMark</span>
+      <span class="pro-badge">PRO</span>
+    </div>
+    <div class="counter-box">
+      <div class="count-number" id="count">0</div>
+      <div class="count-label">Tweets</div>
+    </div>
+  </div>
+
+  <div id="results-area">
+    <div class="empty-state" id="placeholder">
+      <div class="empty-icon-circle">📂</div>
+      <div class="empty-title">Ready to Export</div>
+      <div class="empty-desc">
+        Open your Twitter Bookmarks page and click Start. We'll extract everything.
+      </div>
+      
+      <div class="warning-card">
+        <span style="font-size:16px;">⚠️</span>
+        <div>
+          <b>Do not close this window</b> while the scanner is running.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <button id="scanBtn">Start Scan</button>
+    
+    <button id="resetBtn">Reset</button>
+    <button id="downloadBtn">Download CSV</button>
+    <button id="btnNotebookLM">✨ Export for NotebookLM</button>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
