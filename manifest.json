@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Twimark: Twitter Bookmark & AI Exporter",
+  "name": "Twimark: Twitter Bookmark to NotebookLM AI Exporter",
   "version": "2.1",
-  "description": "Export X/Twitter bookmarks to CSV or NotebookLM (AI Ready) instantly.",
+  "description": "Export X/Twitter bookmarks to an AI-ready Markdown file and launch Google NotebookLM in one click. Stitches threads automatically!",
   "permissions": ["activeTab", "scripting"],
   "action": {
     "default_popup": "popup.html",
