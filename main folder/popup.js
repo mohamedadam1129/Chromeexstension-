@@ -29,7 +29,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 });
 
 // GET UI ELEMENTS
-const scanBtn = document.getElementById("scanBtn");
+const smartSyncBtn = document.getElementById("smartSyncBtn");
+const fullExportBtn = document.getElementById("fullExportBtn");
 const downloadBtn = document.getElementById("downloadBtn");
 const btnNotebookLM = document.getElementById("btnNotebookLM");
 const resetBtn = document.getElementById("resetBtn");
@@ -44,46 +45,52 @@ resetBtn.style.display = "none";
 // --- 2. SMART REDIRECT CHECK (RUNS ON OPEN) ---
 chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
   const currentUrl = tabs[0].url || "";
-  
-  // Check if user is on the correct bookmarks page (supports twitter.com and x.com)
   const isBookmarksPage = currentUrl.includes("twitter.com/i/bookmarks") || currentUrl.includes("x.com/i/bookmarks");
 
   if (!isBookmarksPage) {
-    // If NOT on bookmarks, change button to Redirect Mode
-    scanBtn.innerText = "Go to Bookmarks";
+    smartSyncBtn.innerText = "Go to Bookmarks";
+    smartSyncBtn.style.gridColumn = "span 2";
+    fullExportBtn.style.display = "none";
     placeholder.innerText = "You need to be on your Twitter Bookmarks page to use this tool.";
     isRedirectMode = true;
   }
 });
 
-// --- 3. SCAN / REDIRECT BUTTON LOGIC ---
-scanBtn.addEventListener("click", () => {
-  
-  // CASE A: User is on wrong page -> Redirect them
-  if (isRedirectMode) {
-    chrome.tabs.update({ url: "https://x.com/i/bookmarks" });
-    window.close(); // Close popup so they can see the page loading
-    return;
-  }
-
-  // CASE B: User is on correct page -> Start Scan
-  // 1. Send Tracking Event
-  console.log("Tracking: Scan Started");
+function startScan(mode) {
+  console.log("Tracking: Scan Started", mode);
   sendEvent("scan_started");
 
-  // 2. Update UI
   placeholder.style.display = "none";
-  scanBtn.innerText = "Scanning... (Keep Open)";
-  scanBtn.disabled = true;
-  scanBtn.style.gridColumn = "span 2"; 
+  smartSyncBtn.innerText = "Scanning... (Keep Open)";
+  smartSyncBtn.disabled = true;
+  smartSyncBtn.style.gridColumn = "span 2";
+  fullExportBtn.style.display = "none";
 
-  // 3. Inject Content Script
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    const tabId = tabs[0].id;
     chrome.scripting.executeScript({
-      target: { tabId: tabs[0].id },
+      target: { tabId },
       files: ["content.js"]
+    }, () => {
+      setTimeout(() => {
+        chrome.tabs.sendMessage(tabId, { action: "start_scan", mode });
+      }, 50);
     });
   });
+}
+
+// --- 3. SMART SYNC / FULL EXPORT / REDIRECT ---
+smartSyncBtn.addEventListener("click", () => {
+  if (isRedirectMode) {
+    chrome.tabs.update({ url: "https://x.com/i/bookmarks" });
+    window.close();
+    return;
+  }
+  startScan("smart_sync");
+});
+
+fullExportBtn.addEventListener("click", () => {
+  startScan("full_export");
 });
 
 function addTweetToUI(tweet) {
@@ -106,7 +113,8 @@ function addTweetToUI(tweet) {
 }
 
 function finishScan() {
-  scanBtn.style.display = "none"; 
+  smartSyncBtn.style.display = "none";
+  fullExportBtn.style.display = "none";
   resetBtn.style.display = "block";
   downloadBtn.style.display = "block";
   if (btnNotebookLM) btnNotebookLM.style.display = "block";
@@ -192,4 +200,5 @@ function exportToNotebookLM(bookmarks) {
   setTimeout(() => {
     chrome.tabs.create({ url: 'https://notebooklm.google.com/' });
   }, 500); 
+}
 }

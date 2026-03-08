@@ -177,14 +177,24 @@
       width: 100%; /* Fill the grid cell */
     }
 
-    /* 1. START SCAN (Full Width) */
-    #scanBtn {
+    /* 1. SMART SYNC (Primary - Full Width) */
+    #smartSyncBtn {
       background: #0f1419;
       color: white;
-      grid-column: span 2; /* Stretch across both columns */
+      grid-column: span 2;
     }
-    #scanBtn:hover { background: #272c30; transform: translateY(-1px); }
-    #scanBtn:disabled { background: #cfd9de; cursor: wait; }
+    #smartSyncBtn:hover { background: #272c30; transform: translateY(-1px); }
+    #smartSyncBtn:disabled { background: #cfd9de; cursor: wait; }
+
+    /* 1b. FULL EXPORT (Secondary) */
+    #fullExportBtn {
+      background: #fff;
+      color: #536471;
+      border: 1px solid #cfd9de;
+      grid-column: span 2;
+    }
+    #fullExportBtn:hover { background: #f7f9f9; }
+    #fullExportBtn:disabled { background: #cfd9de; cursor: wait; }
 
     /* 2. RESET (Left Side - Grey Border) */
     #resetBtn {
@@ -234,7 +244,7 @@
       <div class="empty-icon-circle">📂</div>
       <div class="empty-title">Ready to Export</div>
       <div class="empty-desc">
-        Open your Twitter Bookmarks page and click Start. We'll extract everything.
+        Open your Twitter Bookmarks page. Use Smart Sync for new bookmarks only, or Full Export for everything.
       </div>
       
       <div class="warning-card">
@@ -247,8 +257,9 @@
   </div>
 
   <div class="footer">
-    <button id="scanBtn">Start Scan</button>
-    
+    <button id="smartSyncBtn">Smart Sync</button>
+    <button id="fullExportBtn">Full Export</button>
+
     <button id="resetBtn">Reset</button>
     <button id="downloadBtn">Download CSV</button>
     <button id="btnNotebookLM">✨ Export for NotebookLM</button>
