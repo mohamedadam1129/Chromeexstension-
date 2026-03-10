@@ -4,6 +4,9 @@
   "version": "2.2",
   "description": "Export X/Twitter bookmarks to an AI-ready Markdown file and launch Google NotebookLM in one click. Stitches threads automatically!",
   "permissions": ["activeTab", "scripting", "storage"],
+  "background": {
+    "service_worker": "background.js"
+  },
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
